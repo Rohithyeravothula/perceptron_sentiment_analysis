@@ -169,10 +169,26 @@ def dev_decode(pred_dict, gold_dict, i):
         gold.append(gold_dict[reviewId][i])
     return predictions, gold
 
+def get_cbow(text: List[str]):
+    bag_of_words = set()
+    for line in text:
+        bag_of_words = bag_of_words.union(set(get_unigrams(line)))
+    return list(bag_of_words)
+
 
 
 def get_unigrams(text: str):
-    return [word.strip() for word in text.lower().split(" ") if word.strip() not in stop_words]
-
-
+    # unigrams = [word.strip() for word in text.lower().split(" ") if word.strip() not in stop_words]
+    # return unigrams
+    sentences = text.lower().split(".")
+    unigrams = []
+    for sentence in sentences:
+        unigrams.extend([word for word in sentence.split(" ")])
+    bigrams = []
+    # return unigrams
+    unigrams = [word.strip() for word in text.lower().split(" ") if word not in stop_words]
+    for w1, w2 in zip(unigrams, unigrams[1:]):
+        bigrams.append("{} {}".format(w1, w2))
+    features = unigrams
+    return features
 

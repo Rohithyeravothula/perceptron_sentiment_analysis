@@ -1,2 +1,5 @@
 try negated words
 not good => not_good as unigram
+
+
+change the initialization weights to a normal distribution of weights
