@@ -1,17 +1,14 @@
-from typing import List, Dict, Set, DefaultDict, Callable, Tuple
-from random import shuffle
-from abc import abstractmethod
-from util import read_train_data, sample_train_data_filename, train_data_filename, get_text_ngrams, \
-    read_dev_data, read_dev_key_data, dev_data_filename, dev_data_key_filename, \
-    get_performance_measure, prepare_train_data, dev_decode, get_cbow, get_sentiment_features, \
-    get_authenticity_features, write_model, vanilla_model_filename, avg_model_filename, read_model, \
-    write_output, output_filename, decode_auth_class, decode_sent_class, pprint
-from collections import Counter, defaultdict
-import time
-import random
-from statistics import mean
 import json
 import sys
+from abc import abstractmethod
+from statistics import mean
+from typing import List, Dict, Callable, Tuple
+
+from util import train_data_filename, read_dev_data, read_dev_key_data, dev_data_filename, \
+    dev_data_key_filename, \
+    get_performance_measure, prepare_train_data, dev_decode, get_cbow, get_sentiment_features, \
+    get_authenticity_features, write_model, vanilla_model_filename, avg_model_filename, read_model, \
+    write_output, decode_auth_class, decode_sent_class, pprint
 
 ITERATIONS = 100
 FREQ_LIMIT = 1
@@ -171,20 +168,21 @@ def model_build(sentiment_data, authenticity_data, text):
     auth_bag_of_words = get_cbow(text, True)
 
     vp_sent = Vanilla_Perceptron(sent_bag_of_words, 0, True)
-    vp_sent.train(sentiment_data, ITERATIONS, get_sentiment_features)
-
     vp_auth = Vanilla_Perceptron(auth_bag_of_words, 0, False)
+
+
+    vp_sent.train(sentiment_data, ITERATIONS, get_sentiment_features)
     vp_auth.train(authenticity_data, ITERATIONS, get_authenticity_features)
 
 
     ap_sent = Avg_Perceptron(sent_bag_of_words, 0, True)
-    ap_sent.train(sentiment_data, ITERATIONS, get_sentiment_features)
-
     ap_auth = Avg_Perceptron(auth_bag_of_words, 0, False)
-    ap_auth.train(authenticity_data, ITERATIONS, get_sentiment_features)
+
+
+    ap_sent.train(sentiment_data, ITERATIONS, get_sentiment_features)
+    ap_auth.train(authenticity_data, ITERATIONS, get_authenticity_features)
 
     return vp_sent, vp_auth, ap_sent, ap_auth
-
 
 
 def model_train(filename: str):
@@ -216,6 +214,7 @@ def model_predict(model_filename: str, data_filename: str):
     data = read_dev_data(data_filename)
     models = read_model(model_filename)
     sent_model, auth_model = build_model(models)
+    print(sent_model.weights["excellent"])
     predictions = model_predict_data(sent_model, auth_model, data)
     write_output(predictions)
 
@@ -279,6 +278,19 @@ def pre_processing():
 
     asent_predictions, aauth_predictions = avg_models(sentiment_data, authenticity_data, dev_data, text)
 
+    # output = {}
+    #
+    # for key, val in aauth_predictions.items():
+    #     output[key] = [decode_auth_class(val)]
+    #
+    # for key, val in asent_predictions.items():
+    #     output[key].append(decode_sent_class(val))
+    #
+    # for key, val in output.items():
+    #     print("{} {}".format(key, " ".join(val)))
+
+
+
     asent_predictions, sent_gold = dev_decode(asent_predictions, dev_key, 1)
     aauth_predictions, auth_gold = dev_decode(aauth_predictions, dev_key, 0)
 
@@ -295,7 +307,7 @@ def pre_processing():
 def trail_run():
     vanilla_scores = []
     avg_scores = []
-    for i in range(0, 20):
+    for i in range(0, 1):
         sf1, af1 = pre_processing()
         print(sf1, af1)
         vanilla_scores.append(sf1)
@@ -317,3 +329,5 @@ def predict_main():
 
 if __name__ == '__main__':
     trail_run()
+    # model_train(train_data_filename)
+    # model_predict("averagedmodel.txt", dev_data_filename)

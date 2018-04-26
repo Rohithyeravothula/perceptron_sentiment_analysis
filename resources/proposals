@@ -1,5 +1,141 @@
-try negated words
-not good => not_good as unigram
+
+old model:
+90.00 89.84
+89.99 89.37
+90 90.47
+90 89.68
+89.83 89.69
+90.61 89.68
 
 
-change the initialization weights to a normal distribution of weights
+
+new model:
+89.68  91.25
+90.15 88.91
+89.51 90.31
+89.53 90.59
+
+
+without bigrams
+90.30 90.15
+90.45 89.37
+
+
+
+
+cbow updated:
+89.37 90.30
+90.18 89.84
+91.56 90.31
+91.25 90.16
+90.62 90.14
+90.31 91.40
+90.78 89.84
+
+
+
+sentiment
+20 iterations
+without rare word: 93.91
+with rare word: 94.39
+
+100 iterations
+
+without rare word:93.89
+with rare word: 94.5
+
+
+"keep the rare word feature"
+
+
+
+counts
+unigrams+bigrams
+5 iterations
+without rare word: 93.5, 84.7
+with rare word: 92.8, 82.62
+
+unigrams
+without rare word:
+with rare word: 94.31, 84.02
+
+
+bad results with tf-idf.... :(
+
+
+
+
+authenticity:
+5 iterations
+unigrams
+without rare word:
+with rare word: 84.4
+
+20 iterations
+with rare word: 83.87
+without rare word: 84.9
+without rare word and binary stuff: 85.05
+
+
+
+change stop words and see
+
+authenticity get unigrams with split on full stops gives better results
+
+
+average model:
+
+20 iterations:
+
+without rare word: 93.77 85.60
+with rare word: 94.57 84.99
+
+vanilla model:
+
+20 iterations:
+
+without rare word: 93.9 85.5
+with rare word: 94.35 85.44
+
+
+
+bigrams
+0.8751215240708866 0.873146642556414
+partial bigrams
+0.8762738397025644 0.8741271186029023
+
+
+unigrams
+0.8690051961361144 0.867701804645817
+
+bigrams
+0.9465512725674765 0.8606803980328822
+
+unigrams
+0.9514026344954126 0.8608952329742114
+
+
+vanilla perceptron
+without shuffle
+average scores
+0.9440435379548071
+0.8608286081899524
+0.9024360730723797
+
+with shuffle
+average scores
+0.9482694908112087
+0.8662787033678097
+0.9072740970895092
+
+
+avg perceptron
+average scores
+0.9424775906566101
+0.8608422638870148
+0.9016599272718124
+
+average scores
+0.946392380041591
+0.8652548952978267
+0.9058236376697089
