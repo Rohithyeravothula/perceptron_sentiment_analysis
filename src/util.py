@@ -1,5 +1,5 @@
 from collections import defaultdict, Counter
-from typing import List, Dict, Set, Tuple, Optional, NoReturn
+from typing import List, Dict, Set, Tuple, Optional
 import string
 import os, sys, json
 
@@ -147,7 +147,7 @@ def read_dev_key_data(filename) -> Dict[str, Tuple[int, int]]:
     return dev_key_map
 
 
-def write_predictions(predictions, filename) -> NoReturn:
+def write_predictions(predictions, filename):
     buffer = []
     for (review_id, auth, sent) in predictions:
         buffer.append(" ".join([review_id, auth, sent]))
@@ -194,11 +194,10 @@ def dev_decode(pred_dict, gold_dict, i):
     return predictions, gold
 
 
-def get_cbow(text: List[str]) -> Dict[str, int]:
+def get_cbow(text: List[str], use_bigrams: bool) -> Dict[str, int]:
     bag_of_words = defaultdict(int)
     for line in text:
-        # todo: make this parameterable and pass only for authenticity
-        for word in get_text_ngrams(line, False, True):
+        for word in get_text_ngrams(line, False, use_bigrams):
             bag_of_words[word] += 1
     return dict(bag_of_words)
 
@@ -226,14 +225,14 @@ def get_text_ngrams(text: str, remove_stop_words: bool, bigrams: bool = False) -
 
 
 def get_sentiment_features(text: str) -> Dict[str, int]:
-    return Counter(get_text_ngrams(text, True))
+    return Counter(get_text_ngrams(text, True, False))
 
 
 def get_authenticity_features(text: str) -> Dict[str, int]:
     return Counter(get_text_ngrams(text, False, True))
 
 
-def write_output(data: List[str]) -> NoReturn:
+def write_output(data: List[str]):
     file = "{}/{}".format(os.getcwd(), output_filename)
     with open(file, 'w') as fp:
         fp.write("\n".join(data))

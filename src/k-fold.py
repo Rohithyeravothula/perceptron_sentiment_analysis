@@ -1,5 +1,5 @@
 from statistics import mean
-
+from typing import List, Tuple
 from util import break_train_data_line, full_data_filename, prepare_train, get_cbow, \
     get_sentiment_features, get_authenticity_features, get_performance_measure, dev_decode
 from random import shuffle
@@ -15,12 +15,38 @@ def read_full_data(filename):
     return full_data
 
 
-def random_split_test_train(data):
-    shuffle(data)
-    data_length = len(data)
-    split_index = int(0.75*data_length)
-    test_data, test_data_key = convert_to_test(data[split_index:])
-    return data[0:split_index], test_data, test_data_key
+
+def random_split_test_train(data: List[Tuple[str, str, str]]):
+    sent_pos_data = [(review_id, text, auth, sent) for (review_id, text, auth, sent) in data if
+                     sent == 1]
+    sent_neg_data = [(review_id, text, auth, sent) for (review_id, text, auth, sent) in data if
+                    sent == -1]
+    auth_pos_data = [(review_id, text, auth, sent) for (review_id, text, auth, sent) in data if
+                    auth == 1]
+    auth_neg_data = [(review_id, text, auth, sent) for (review_id, text, auth, sent) in data if
+                     auth == -1]
+
+    shuffle(sent_pos_data)
+    shuffle(sent_neg_data)
+    shuffle(auth_pos_data)
+    shuffle(auth_neg_data)
+
+    split_index = int(0.75 * len(sent_pos_data))
+
+
+
+    train_data = sent_pos_data[:split_index] + sent_neg_data[:split_index] \
+                 + auth_pos_data[:split_index] + auth_neg_data[:split_index]
+
+    test_data_full = sent_pos_data[split_index:] + sent_neg_data[split_index:] \
+                 + auth_pos_data[split_index:] + auth_neg_data[split_index:]
+
+    # print(len(sent_pos_data), len(sent_neg_data), len(auth_pos_data), len(auth_neg_data))
+    print(len(train_data), len(test_data_full))
+
+    test_data, test_data_key = convert_to_test(test_data_full)
+
+    return train_data, test_data, test_data_key
 
 def convert_to_test(data):
     test_data = []
@@ -39,7 +65,7 @@ def k_fold_test(k: int):
     for i in range(k):
         train_data, test_data, test_key = random_split_test_train(data)
         sentiment_data, authenticity_data, text = prepare_train(train_data)
-        bag_of_words = get_cbow(text)
+        bag_of_words = get_cbow(text, True)
 
 
         vp_sent = Vanilla_Perceptron(bag_of_words, 0, True)
@@ -58,9 +84,6 @@ def k_fold_test(k: int):
         _, _, vp_auth_neg_f1 = get_performance_measure(vp_auth_predictions, auth_gold, -1)
 
         vp_performance = [vp_sent_pos_f1, vp_sent_neg_f1, vp_auth_pos_f1, vp_auth_neg_f1]
-
-
-
 
 
 
